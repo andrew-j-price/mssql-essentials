@@ -1,0 +1,50 @@
+---
+
+- name: enable service on startup
+  win_service:
+    name: SQLSERVERAGENT
+    start_mode: auto
+    state: started
+
+- name: ensure service is running
+  win_service:
+    name: SQLSERVERAGENT
+    state: started
+
+- name: create directory structure
+  win_file: path=C:\Support\{{ jobs_folder }}\ state=directory
+
+- name: sync files
+  win_copy:
+    src: jobs/
+    dest: C:/Support/{{ jobs_folder }}/
+
+- name: copy DatabaseMail config
+  win_template: 
+    src: "1_Configure_DatabaseMail.j2"
+    dest: 'C:\Support\{{ jobs_folder }}\1_Configure_DatabaseMail.sql'
+
+- name: copy Operator and Alerts config
+  win_template: 
+    src: "2_Configure_Operator_and_Error_Alerts.j2"
+    dest: 'C:\Support\{{ jobs_folder }}\2_Configure_Operator_and_Error_Alerts.sql'
+
+- name: Run powershell script with items
+  script: sql_commands.ps1 "C:\Support\{{ jobs_folder }}" {{ item }} {{ sql_user }} {{ sql_pass }} 
+  with_items:
+    - "1_Configure_DatabaseMail.sql"
+    - "2_Configure_Operator_and_Error_Alerts.sql"
+    - "3_Configure_MaintenanceSolution.sql"
+    - "Job_DatabaseMail_Failed_SQL_Server_Agent_Jobs.sql"
+    - "Job_DatabaseMail_General_Database_Information.sql"
+    - "Job_DatabaseMail_Index_Fragmentation.sql"
+    - "Job_DatabaseMail_SQL_Error_Log_past_24_Hours.sql"
+    - "Job_Maintenance_Backup_SysDB_Full.sql"
+    - "Job_Maintenance_Backup_UserDB_Differential.sql"
+    - "Job_Maintenance_Backup_UserDB_Full.sql"
+    - "Job_Maintenance_Backup_UserDB_Transaction_Log.sql"
+    - "Job_Maintenance_Indexes_UserDB.sql"
+    - "Job_Maintenance_Integrity_SysDB.sql"
+    - "Job_Maintenance_Integrity_UserDB.sql"
+  register: commandResult
+  failed_when: "'_x000D__x000A_' in commandResult.stderr"        # works for missing file, existing SQL item, failed authentication, bad SQL statement

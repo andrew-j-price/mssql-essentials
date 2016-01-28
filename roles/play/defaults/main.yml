@@ -1,0 +1,14 @@
+---
+ansible_ssh_user: automate
+ansible_ssh_pass: Password123
+ansible_ssh_port: 5985
+ansible_connection: winrm
+ansible_winrm_server_cert_validation: ignore
+
+sql_user: sa
+sql_pass: Password123
+
+dba_email: 'somebody@example.com'
+smtp_server: 'smtp.example.com'
+
+jobs_folder: 'MSSQL-Jobs'

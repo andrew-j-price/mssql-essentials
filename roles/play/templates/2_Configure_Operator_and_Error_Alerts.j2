@@ -1,0 +1,247 @@
+#jinja2: newline_sequence:'\r\n'
+--Sends Fatal, Internal Error and Insufficient Resource alerts to 'DBA' operator using DatabaseMail
+
+--Enable DatabaseMailProfile for SQL Server Agent
+USE [msdb]
+GO
+EXEC msdb.dbo.sp_set_sqlagent_properties @email_save_in_sent_folder=1, 
+		@databasemail_profile=N'DatabaseMailProfile', 
+		@use_databasemail=1
+GO
+
+
+
+--Delete 'DBA' operator if exists
+IF EXISTS (
+    SELECT name
+    FROM msdb.dbo.sysoperators
+    WHERE name=N'DBA')
+EXEC msdb.dbo.sp_delete_operator
+    @name=N'DBA'
+;
+--Add 'DBA' operator
+USE [msdb]
+GO
+EXEC msdb.dbo.sp_add_operator @name=N'DBA', 
+		@enabled=1, 
+		@pager_days=0, 
+		@email_address=N'{{ dba_email }}'
+GO
+
+
+
+--SQL Alerts > 17
+USE [msdb]
+GO
+-- Delete alert if exists
+IF EXISTS (
+    SELECT name
+    FROM msdb.dbo.sysalerts
+    WHERE name=N'017 - Insufficient Resources')
+EXEC msdb.dbo.sp_delete_alert
+    @name=N'017 - Insufficient Resources'
+;
+-- Create alert
+EXEC msdb.dbo.sp_add_alert @name=N'017 - Insufficient Resources', 
+		@message_id=0, 
+		@severity=17, 
+		@enabled=1, 
+		@delay_between_responses=60, --this alert can cause massive alarms on disk space issues
+		@include_event_description_in=1, 
+		@job_id=N'00000000-0000-0000-0000-000000000000'
+GO
+EXEC msdb.dbo.sp_add_notification @alert_name=N'017 - Insufficient Resources', @operator_name=N'DBA', @notification_method = 1
+GO
+
+
+
+USE [msdb]
+GO
+-- Delete alert if exists
+IF EXISTS (
+    SELECT name
+    FROM msdb.dbo.sysalerts
+    WHERE name=N'018 - Nonfatal Internal Error')
+EXEC msdb.dbo.sp_delete_alert
+    @name=N'018 - Nonfatal Internal Error'
+;
+-- Create alert
+EXEC msdb.dbo.sp_add_alert @name=N'018 - Nonfatal Internal Error', 
+		@message_id=0, 
+		@severity=18, 
+		@enabled=1, 
+		@delay_between_responses=0, 
+		@include_event_description_in=1, 
+		@job_id=N'00000000-0000-0000-0000-000000000000'
+GO
+EXEC msdb.dbo.sp_add_notification @alert_name=N'018 - Nonfatal Internal Error', @operator_name=N'DBA', @notification_method = 1
+GO
+
+
+
+
+USE [msdb]
+GO
+-- Delete alert if exists
+IF EXISTS (
+    SELECT name
+    FROM msdb.dbo.sysalerts
+    WHERE name=N'019 - Fatal Error in Resource')
+EXEC msdb.dbo.sp_delete_alert
+    @name=N'019 - Fatal Error in Resource'
+;
+-- Create alert
+EXEC msdb.dbo.sp_add_alert @name=N'019 - Fatal Error in Resource', 
+		@message_id=0, 
+		@severity=19, 
+		@enabled=1, 
+		@delay_between_responses=0, 
+		@include_event_description_in=1, 
+		@job_id=N'00000000-0000-0000-0000-000000000000'
+GO
+EXEC msdb.dbo.sp_add_notification @alert_name=N'019 - Fatal Error in Resource', @operator_name=N'DBA', @notification_method = 1
+GO
+
+
+
+USE [msdb]
+GO
+-- Delete alert if exists
+IF EXISTS (
+    SELECT name
+    FROM msdb.dbo.sysalerts
+    WHERE name=N'020 - Fatal Error in Current Process')
+EXEC msdb.dbo.sp_delete_alert
+    @name=N'020 - Fatal Error in Current Process'
+;
+-- Create alert
+EXEC msdb.dbo.sp_add_alert @name=N'020 - Fatal Error in Current Process', 
+		@message_id=0, 
+		@severity=20, 
+		@enabled=1, 
+		@delay_between_responses=0, 
+		@include_event_description_in=1, 
+		@job_id=N'00000000-0000-0000-0000-000000000000'
+GO
+EXEC msdb.dbo.sp_add_notification @alert_name=N'020 - Fatal Error in Current Process', @operator_name=N'DBA', @notification_method = 1
+GO
+
+
+
+USE [msdb]
+GO
+-- Delete alert if exists
+IF EXISTS (
+    SELECT name
+    FROM msdb.dbo.sysalerts
+    WHERE name=N'021 - Fatal Error in Database Processes')
+EXEC msdb.dbo.sp_delete_alert
+    @name=N'021 - Fatal Error in Database Processes'
+;
+-- Create alert
+EXEC msdb.dbo.sp_add_alert @name=N'021 - Fatal Error in Database Processes', 
+		@message_id=0, 
+		@severity=21, 
+		@enabled=1, 
+		@delay_between_responses=0, 
+		@include_event_description_in=1, 
+		@job_id=N'00000000-0000-0000-0000-000000000000'
+GO
+EXEC msdb.dbo.sp_add_notification @alert_name=N'021 - Fatal Error in Database Processes', @operator_name=N'DBA', @notification_method = 1
+GO
+
+
+
+USE [msdb]
+GO
+-- Delete alert if exists
+IF EXISTS (
+    SELECT name
+    FROM msdb.dbo.sysalerts
+    WHERE name=N'022 - Fatal Error: Table Integrity Suspect')
+EXEC msdb.dbo.sp_delete_alert
+    @name=N'022 - Fatal Error: Table Integrity Suspect'
+;
+-- Create alert
+EXEC msdb.dbo.sp_add_alert @name=N'022 - Fatal Error: Table Integrity Suspect', 
+		@message_id=0, 
+		@severity=22, 
+		@enabled=1, 
+		@delay_between_responses=0, 
+		@include_event_description_in=1, 
+		@job_id=N'00000000-0000-0000-0000-000000000000'
+GO
+EXEC msdb.dbo.sp_add_notification @alert_name=N'022 - Fatal Error: Table Integrity Suspect', @operator_name=N'DBA', @notification_method = 1
+GO
+
+
+
+USE [msdb]
+GO
+-- Delete alert if exists
+IF EXISTS (
+    SELECT name
+    FROM msdb.dbo.sysalerts
+    WHERE name=N'023 - Fatal Error: Database Integrity Suspect')
+EXEC msdb.dbo.sp_delete_alert
+    @name=N'023 - Fatal Error: Database Integrity Suspect'
+;
+-- Create alert
+EXEC msdb.dbo.sp_add_alert @name=N'023 - Fatal Error: Database Integrity Suspect', 
+		@message_id=0, 
+		@severity=23, 
+		@enabled=1, 
+		@delay_between_responses=0, 
+		@include_event_description_in=1, 
+		@job_id=N'00000000-0000-0000-0000-000000000000'
+GO
+EXEC msdb.dbo.sp_add_notification @alert_name=N'023 - Fatal Error: Database Integrity Suspect', @operator_name=N'DBA', @notification_method = 1
+GO
+
+
+
+USE [msdb]
+GO
+-- Delete alert if exists
+IF EXISTS (
+    SELECT name
+    FROM msdb.dbo.sysalerts
+    WHERE name=N'024 - Fatal Error: Hardware Error')
+EXEC msdb.dbo.sp_delete_alert
+    @name=N'024 - Fatal Error: Hardware Error'
+;
+-- Create alert
+EXEC msdb.dbo.sp_add_alert @name=N'024 - Fatal Error: Hardware Error', 
+		@message_id=0, 
+		@severity=24, 
+		@enabled=1, 
+		@delay_between_responses=0, 
+		@include_event_description_in=1, 
+		@job_id=N'00000000-0000-0000-0000-000000000000'
+GO
+EXEC msdb.dbo.sp_add_notification @alert_name=N'024 - Fatal Error: Hardware Error', @operator_name=N'DBA', @notification_method = 1
+GO
+
+
+
+USE [msdb]
+GO
+-- Delete alert if exists
+IF EXISTS (
+    SELECT name
+    FROM msdb.dbo.sysalerts
+    WHERE name=N'025 - Fatal Error')
+EXEC msdb.dbo.sp_delete_alert
+    @name=N'025 - Fatal Error'
+;
+-- Create alert
+EXEC msdb.dbo.sp_add_alert @name=N'025 - Fatal Error', 
+		@message_id=0, 
+		@severity=25, 
+		@enabled=1, 
+		@delay_between_responses=0, 
+		@include_event_description_in=1, 
+		@job_id=N'00000000-0000-0000-0000-000000000000'
+GO
+EXEC msdb.dbo.sp_add_notification @alert_name=N'025 - Fatal Error', @operator_name=N'DBA', @notification_method = 1
+GO
