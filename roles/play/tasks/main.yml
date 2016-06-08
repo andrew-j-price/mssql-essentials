@@ -1,14 +1,9 @@
 ---
 
-- name: enable service on startup
+- name: enable service on startup and ensure is running
   win_service:
     name: SQLSERVERAGENT
     start_mode: auto
-    state: started
-
-- name: ensure service is running
-  win_service:
-    name: SQLSERVERAGENT
     state: started
 
 - name: create directory structure
